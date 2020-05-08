@@ -6,6 +6,10 @@ QCan is a free software for the canonicalisation of SPARQL queries.
 This software works with queries under SPARQL 1.0 syntax. 
 Developed as part of a master's thesis.
 
+# Install
+
+`mvn clean install`
+
 # Benchmark
 
 To run this software over a text file containing SPARQL queries (one per line) execute:
