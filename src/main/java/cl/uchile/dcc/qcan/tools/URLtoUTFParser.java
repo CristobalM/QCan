@@ -1,6 +1,8 @@
 package cl.uchile.dcc.qcan.tools;
 
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -17,6 +19,8 @@ public class URLtoUTFParser implements FileVisitor<Path> {
 	Path startingFile;
 	Queue<String> queue = new LinkedBlockingQueue<String>();
 	Path destination;
+
+	static final Logger logger = LoggerFactory.getLogger(URLtoUTFParser.class);
 	
 	public URLtoUTFParser(Path p, Path f) throws IOException{
 		this.startingFile = p;	
@@ -34,7 +38,7 @@ public class URLtoUTFParser implements FileVisitor<Path> {
 
 	@Override
 	public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) throws IOException {
-		System.out.println(file);
+		logger.debug(String.valueOf(file));
 		String s;
 		File out = new File(destination.toString()+"/utf8"+file.getFileName());
 		out.createNewFile();
@@ -76,9 +80,8 @@ public class URLtoUTFParser implements FileVisitor<Path> {
 			URLtoUTFParser mg = new URLtoUTFParser(p,f);
 			mg.start();
 	    }
-	    catch (ParseException exception){
-	        System.out.print("Parse error: ");
-	        System.out.println(exception.getMessage());
+	    catch (ParseException e){
+	        logger.error("Parse error", e);
 	    }
 	}
 

@@ -5,6 +5,8 @@ import org.apache.jena.graph.*;
 import org.apache.jena.sparql.graph.GraphFactory;
 import org.apache.jena.sparql.path.*;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -16,6 +18,8 @@ public class PathWalker implements PathVisitor {
 	Stack<Triple> tripleStack = new Stack<Triple>();
 	Set<Node> predicates = new HashSet<Node>();
 	Map<Pair<Node,Node>, Set<Pair<Node,Integer>>> delta = new HashMap<Pair<Node,Node>, Set<Pair<Node,Integer>>>();
+
+	final Logger logger = LoggerFactory.getLogger(PathWalker.class);
 	
 	@Override
 	public void visit(P_Link arg0) {
@@ -175,12 +179,13 @@ public class PathWalker implements PathVisitor {
 	}
 	
 	public void print() {
+		if(!logger.isDebugEnabled()) return;
 		ExtendedIterator<Triple> et = GraphUtil.findAll(graph);
 		while (et.hasNext()) {
-			System.out.println(et.next());
+			logger.debug(String.valueOf(et.next()));
 		}
-		System.out.println("Start: "+tripleStack.peek().getSubject());
-		System.out.println("End: "+nodeStack.peek());
+		logger.debug("Start: "+tripleStack.peek().getSubject());
+		logger.debug("End: "+nodeStack.peek());
 	}
 	
 	public Node getStartState() {

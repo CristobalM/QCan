@@ -4,6 +4,8 @@ import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 import org.apache.commons.cli.*;
 import org.apache.jena.ext.com.google.common.collect.HashMultiset;
 import org.apache.jena.ext.com.google.common.collect.Multiset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +27,8 @@ public class Benchmark {
 	public boolean enableLeaning = false;
 	public boolean enableCanonicalisation = false;
 	public boolean enableTrimming = false;
+
+	static final Logger logger = LoggerFactory.getLogger(Benchmark.class);
 	
 	public Benchmark(String path) throws IOException{
 		f = new File(path);
@@ -83,12 +87,8 @@ public class Benchmark {
 
 			fop.write(contentInBytes);
 			fop.flush();
-			fop.close();
-
-			System.out.println("Done");
-
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("IOException", e);
 		}
 	}
 	
@@ -167,9 +167,8 @@ public class Benchmark {
 	    		b.execute(upTo, offset, commandLine.hasOption("d"));
 	        }
 	    }
-	    catch (ParseException exception){
-	        System.out.print("Parse error: ");
-	        System.out.println(exception.getMessage());
+	    catch (ParseException e){
+	        logger.error("parse error", e);
 	    }
 
 	}

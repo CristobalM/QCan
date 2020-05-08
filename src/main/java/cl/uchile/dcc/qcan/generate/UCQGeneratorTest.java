@@ -26,7 +26,7 @@ public class UCQGeneratorTest {
 	private File file;
 	private FileWriter fw;
 	private BufferedWriter bw;
-	
+
 	public UCQGeneratorTest() throws IOException{
 		this.file = new File("resultFiles/ucq/result"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())+".log");
 		if (!this.file.exists()){
@@ -58,7 +58,7 @@ public class UCQGeneratorTest {
 			RGraph e = generator.generateGraph(conjunctions, unions);
 			line += "\t"+(System.nanoTime()-t);
 			t = System.nanoTime();
-			RGraph e1 = e.getCanonicalForm(false);
+			RGraph e1 = e.getCanonicalForm();
 			line += "\t"+(System.nanoTime()-t);
 			line += "\t"+e.getNumberOfTriples();
 			line += "\t"+e1.getNumberOfTriples();

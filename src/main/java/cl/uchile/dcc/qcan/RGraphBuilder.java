@@ -22,6 +22,8 @@ import org.apache.jena.sparql.path.P_Alt;
 import org.apache.jena.sparql.path.P_Seq;
 import org.apache.jena.sparql.path.P_ZeroOrMore1;
 import org.apache.jena.sparql.path.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -32,11 +34,11 @@ import java.util.*;
  */
 public class RGraphBuilder implements OpVisitor {
 	
-	private Stack<RGraph> graphStack = new Stack<RGraph>();
-	private Stack<RGraph> unionStack = new Stack<RGraph>();
-	private Stack<RGraph> joinStack = new Stack<RGraph>();
-	private Stack<RGraph> optionalStack = new Stack<RGraph>();
-	private Stack<RGraph> filterStack = new Stack<RGraph>();
+	private Stack<RGraph> graphStack = new Stack<>();
+	private Stack<RGraph> unionStack = new Stack<>();
+	private Stack<RGraph> joinStack = new Stack<>();
+	private Stack<RGraph> optionalStack = new Stack<>();
+	private Stack<RGraph> filterStack = new Stack<>();
 	List<Var> projectionVars;
 	Set<Var> totalVars = new HashSet<Var>();
 	private List<String> graphURI = Collections.emptyList();
@@ -52,15 +54,13 @@ public class RGraphBuilder implements OpVisitor {
 	private boolean containsSolutionMods = false;
 	private boolean containsNamedGraphs = false;
 	private boolean containsPaths = false;
+
+	final Logger logger = LoggerFactory.getLogger(RGraphBuilder.class);
 	
 	public RGraphBuilder(){
 		
 	}
-	
-	public RGraphBuilder(Op op) {
 
-	}
-	
 	public RGraphBuilder(Query query){
 		this.projectionVars = query.getProjectVars();
 		graphURI = query.getGraphURIs();
@@ -205,7 +205,7 @@ public class RGraphBuilder implements OpVisitor {
 
 	@Override
 	public void visit(OpService arg0) {
-		System.out.println(arg0.getServiceElement());
+		logger.debug(String.valueOf(arg0.getServiceElement()));
 		graphStack.peek().service(arg0.getService(), arg0.getSilent());	
 	}
 
@@ -655,7 +655,7 @@ public class RGraphBuilder implements OpVisitor {
 						partitionsPaths.put(sub, paths);
 					}
 					if (PropertyPathFeatureCounter.minLength(tp.getPath()) == 0) {
-						System.out.println(lengthZeroPaths(tp.getPath()));
+						logger.debug(String.valueOf(lengthZeroPaths(tp.getPath())));
 						if (sub.isVariable() && obj.isVariable()) {
 							paths.addAll(lengthZeroPaths(tp.getPath()));
 							partitionsPaths.put(sub, paths);
@@ -693,7 +693,7 @@ public class RGraphBuilder implements OpVisitor {
 
 				}
 			}
-			System.out.println(partitions);
+			logger.debug(String.valueOf(partitions));
 			for (HashSet<Node> partition : partitions) {
 				for (Node sub : partition) {
 					for (Node obj : partition) {
@@ -713,7 +713,7 @@ public class RGraphBuilder implements OpVisitor {
 					}
 				}
 			}
-			System.out.println(newOps);
+			logger.debug(String.valueOf(newOps));
 		}
 		else if (op instanceof OpUnion) {
 			
@@ -748,7 +748,7 @@ public class RGraphBuilder implements OpVisitor {
 	}
 	
 	public Op uC2RPQCollapse(Op op) {
-		Op op1 = op;
+		Op op1;
 		Op op2 = op;
 		do {
 			op1 = op2;
@@ -760,7 +760,7 @@ public class RGraphBuilder implements OpVisitor {
 	}
 	
 	public Op UCQNormalisation(Op op) {
-		Op op1 = op;
+		Op op1;
 		Op op2 = op;
 		do {
 			op1 = op2;
@@ -771,20 +771,16 @@ public class RGraphBuilder implements OpVisitor {
 	}
 	
 	public Op UCQTransformation(Op op){
-		Op op1 = op;
-		Op op2 = Transformer.transform(new UCQVisitor(), op);
-		op1 = transitiveClosure(op1);
-		op2 = UCQNormalisation(op2);
-		op2 = uC2RPQCollapse(op2);
-//		op2 = Transformer.transform(new BGPCollapser(op2, this.projectionVars, true), op2); // transform all sequences
-//		op2 = Transformer.transform(new BGPCollapser(op2,this.projectionVars,false), op2); // transform BGPs
-		op2 = Transformer.transform(new TransformPathFlatternStd(), op2);
-		op2 = Transformer.transform(new TransformSimplify(), op2);
-		op2 = Transformer.transform(new TransformMergeBGPs(), op2);
-		op2 = Transformer.transform(new FilterTransform(), op2);
-		op2 = Transformer.transform(new TransformExtendCombine(), op2);
-		op2 = Transformer.transform(new BGPSort(), op2);
-		return op2;
+		Op opResult = Transformer.transform(new UCQVisitor(), op);
+		opResult = UCQNormalisation(opResult);
+		opResult = uC2RPQCollapse(opResult);
+		opResult = Transformer.transform(new TransformPathFlatternStd(), opResult);
+		opResult = Transformer.transform(new TransformSimplify(), opResult);
+		opResult = Transformer.transform(new TransformMergeBGPs(), opResult);
+		opResult = Transformer.transform(new FilterTransform(), opResult);
+		opResult = Transformer.transform(new TransformExtendCombine(), opResult);
+		opResult = Transformer.transform(new BGPSort(), opResult);
+		return opResult;
 	}
 
 }

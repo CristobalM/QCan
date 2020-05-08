@@ -25,6 +25,8 @@ import org.apache.jena.sparql.sse.SSE;
 import org.apache.jena.sparql.sse.writers.WriterPath;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.semanticweb.yars.nx.NodeComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -40,6 +42,8 @@ public class BGPCollapser extends TransformCopy {
 	BiMap<Var,Node> varMap = HashBiMap.create();
 	boolean sequenceMode = true;
 	boolean setSemantics = false;
+
+	final Logger logger = LoggerFactory.getLogger(BGPCollapser.class);
 	
 	public BGPCollapser(Query q) {
 		projectedVars = q.getProjectVars();
@@ -1001,7 +1005,7 @@ public class BGPCollapser extends TransformCopy {
 				graph.add(Triple.create(subject, predicate, object));
 			}
 			else{
-				System.err.println("Invalid blank node label.");
+				logger.error("Invalid blank node label.");
 			}
 		}
 		for (Var v : projectedVars) {
@@ -1085,7 +1089,6 @@ public class BGPCollapser extends TransformCopy {
 			int minNodes = 0;
 			while (rs.hasNext()) {
 				QuerySolution qs = rs.nextSolution();
-				System.out.println(qs);
 				Set<Node> nodes = new HashSet<Node>();
 				Set<Node> paths = new HashSet<Node>();
 				boolean isValid = true;
@@ -1188,7 +1191,6 @@ public class BGPCollapser extends TransformCopy {
 					newOps.add(nextOp);
 				}
 			}
-			System.out.println(minSolution);
 			ans = OpSequence.create();
 			for (Op o : newOps) {
 				((OpSequence) ans).add(o);

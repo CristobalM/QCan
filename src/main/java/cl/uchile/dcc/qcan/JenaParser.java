@@ -160,9 +160,6 @@ public class JenaParser {
 			if (f.getCount() > max){
 				max = f.getCount();
 			}
-			if (i%1000 == 0){
-				System.out.println(i+" queries added.");
-			}
 		}
 		bw.append("Total number of duplicates detected: "+numberOfDuplicates);
 		bw.append("Most duplicates found: "+max);

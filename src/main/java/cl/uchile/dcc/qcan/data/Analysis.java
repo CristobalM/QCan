@@ -1,5 +1,8 @@
 package cl.uchile.dcc.qcan.data;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +28,9 @@ public class Analysis {
 	public int filter = 0;
 	public int solutionMods = 0;
 	public int namedGraphs = 0;
+
+
+	final Logger logger = LoggerFactory.getLogger(Analysis.class);
 
 	public Analysis(String s) throws FileNotFoundException{
 		this.file = new File(s);
@@ -84,7 +90,7 @@ public class Analysis {
 					solutionMods++;
 				}
 				if (uniqueQueries%10000 == 0){
-					System.out.println(uniqueQueries + " queries read.");
+					logger.debug(uniqueQueries + " queries read.");
 				}
 			}
 		}
@@ -120,7 +126,7 @@ public class Analysis {
 				data.get(1).add(Double.parseDouble(params[2]));
 				uniqueQueries++;
 				if (uniqueQueries%10000 == 0){
-					System.out.println(uniqueQueries + " queries read.");
+					logger.debug(uniqueQueries + " queries read.");
 				}
 			}
 		}

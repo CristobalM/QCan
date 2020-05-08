@@ -12,6 +12,8 @@ import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.path.*;
 import org.apache.jena.sparql.sse.SSE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,9 @@ public class PathTransform {
 	public int numberOfInverses = 0;
 	public int totalNumberofPaths = 0;
 	public int firstInverse = 0;
-	
+
+	final Logger logger = LoggerFactory.getLogger(PathTransform.class);
+
 	public Path visit(Path path) {
 		if (path instanceof P_Inverse) {
 			Path sub = ((P_Inverse) path).getSubPath();
@@ -251,7 +255,7 @@ public class PathTransform {
 		Node o = tp.getObject();
 		Path p = visit(tp.getPath());
 		count(p);
-		System.out.println(maxLength(p));
+		logger.debug(String.valueOf(maxLength(p)));
 		if (numberOfInverses < (totalNumberofPaths - numberOfInverses)) {
 			if (tp.getPath() instanceof P_Link) {
 				return new OpTriple(Triple.create(s, tp.getPredicate(), o));

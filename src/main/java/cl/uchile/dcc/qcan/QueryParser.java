@@ -7,6 +7,8 @@ import org.apache.jena.ext.com.google.common.collect.TreeMultiset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -35,9 +37,11 @@ public class QueryParser {
 	boolean enableOptional = true;
 	boolean enableCanonical = true;
 	boolean enableLeaning = true;
+
+
+	static final Logger logger = LoggerFactory.getLogger(QueryParser.class);
 	
 	public void parse(final String s) throws Exception{
-		System.out.println("Begin parsing.");
 		Thread slave = new Thread(new Runnable(){
 
 			@Override
@@ -60,14 +64,11 @@ public class QueryParser {
 					queryInfo += q.getContainsFilter() + "\t";
 					queryInfo += q.getContainsNamedGraphs() + "\t";
 					queryInfo += q.getContainsSolutionMods() + "\t";
-					System.out.println("Adding to set");
 					canonQueries.add(q.getQuery());
-					System.out.println("Added to set");
-					System.out.println("Writing to file");
 				} catch (InterruptedException | HashCollisionException e) {
 					interruptedExceptions++;
 					unsupportedQueriesList.add(s);
-					System.out.println("Timeout");
+					logger.error("Timeout", e);
 				}
 				catch (UnsupportedOperationException | NullPointerException e){
 					unsupportedQueries++;
@@ -87,17 +88,16 @@ public class QueryParser {
 		slave.start();
 		try{
 			slave.join(1000*1*60);
-			System.out.println("Parsing done");
+			logger.debug("Parsing done");
 			bw.append(queryInfo);
 			bw.newLine();
-			bw.flush();
-			System.out.println("Flushed");
+			bw.flush();;
 			supportedQueries++;
 		}
 		catch(InterruptedException e){
 			interruptedExceptions++;
 			unsupportedQueriesList.add(s);
-			System.out.println("Timeout");
+			logger.error("Timeout", e);
 			bw.newLine();
 			bw.flush();
 		}
@@ -125,7 +125,7 @@ public class QueryParser {
 					break;
 				}
 				if (i % 1000 == 0){
-					System.out.println(i + " queries read.");
+					logger.debug(i + " queries read.");
 				}
 				if (i < offset){
 					i++;
@@ -158,7 +158,7 @@ public class QueryParser {
 			bw.close();
 			this.outputUnsupportedQueries();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.debug("File not found", e);
 		}		
 	}
 	
@@ -187,7 +187,7 @@ public class QueryParser {
 			bf.close();
 			bw.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.error("File not found", e);
 		}
 	}
 	
@@ -197,7 +197,7 @@ public class QueryParser {
 		try {
 			bf = new BufferedReader(new FileReader(f));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.error("File not found", e);
 		}
 		while ((s = bf.readLine())!=null){
 			w += s + " ";
@@ -238,7 +238,7 @@ public class QueryParser {
 				max = f.getCount();
 			}
 			if (i%1000 == 0){
-				System.out.println(i+" queries added.");
+				logger.debug(i+" queries added.");
 			}
 		}
 		bw.append("Total number of duplicates detected: "+numberOfDuplicates);
@@ -260,11 +260,7 @@ public class QueryParser {
 		output += "Total elapsed time (in milliseconds) : " + this.totalTime;
 		return output;
 	}
-	
-	public void printUnsupportedFeatures(){
-		System.out.println(this.unsupportedFeaturesToString());
-	}
-	
+
 	public void outputUnsupportedQueries() throws IOException{
 		if (!unsupportedQueriesList.isEmpty()){
 			FileWriter fw = new FileWriter(new File("resultFiles/unsupported"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())+".log"));

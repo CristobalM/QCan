@@ -3,12 +3,14 @@ package cl.uchile.dcc.qcan;
 import org.apache.jena.ext.com.google.common.collect.HashMultiset;
 import org.apache.jena.ext.com.google.common.collect.Multiset;
 import org.apache.jena.query.QueryParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
 
 public class QueryParserTest {
-	
+
 	String queryInfo = "";
 	String distInfo = "";
 	BufferedReader bf;
@@ -27,22 +29,24 @@ public class QueryParserTest {
 	boolean enableOptional = true;
 	boolean enableCanonical = true;
 	boolean enableLeaning = true;
-	
+
+	final Logger logger = LoggerFactory.getLogger(QueryParserTest.class);
+
+
 	public void parse(String s) throws Exception{
 		try{
 		SingleQuery q = new SingleQuery(s, enableCanonical, enableLeaning, true);
 		canonQueries.add(q.getQuery());
 		q.getOriginalGraph().print();
-		System.out.println("");
 		q.getCanonicalGraph().print();
 		QueryBuilder qb = new QueryBuilder(q.getCanonicalGraph());
-		System.out.println(qb.getQuery());
+		logger.info(qb.getQuery());
 		}
 		catch (Exception e){
-			e.printStackTrace();
-		}	
+			logger.error("Couldn't parse string " + s, e);
+		}
 	}
-	
+
 	public QueryParserTest(File f) throws IOException{
 		String s;
 		int i = 0;
@@ -55,7 +59,7 @@ public class QueryParserTest {
 			long t = System.currentTimeMillis();
 			while ((s = bf.readLine())!=null){
 				try{
-					System.out.println(i++);
+					logger.info(String.valueOf(i++));
 					this.parse(s);
 				}
 				catch (UnsupportedOperationException e){
@@ -64,20 +68,20 @@ public class QueryParserTest {
 				}
 				catch(QueryParseException e){
 					badSyntaxQueries++;
-					e.printStackTrace();
-				} 
+					logger.error("Bad syntax", e);
+				}
 				catch (Exception e) {
 					otherUnspecifiedExceptions++;
-					e.printStackTrace();
+					logger.error("otherUnspecifiedExceptions", e);
 				}
 				totalQueries++;
 			}
 			this.totalTime = System.currentTimeMillis() - t;
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}		
+			logger.error("File not found", e);
+		}
 	}
-	
+
 	public String unsupportedFeaturesToString(){
 		String output = "";
 		for (Multiset.Entry<String> f : this.uQ.entrySet()){
@@ -85,23 +89,20 @@ public class QueryParserTest {
 		}
 		return output;
 	}
-	
+
 	public void enableCanonicalisation(boolean b){
 		this.enableCanonical = b;
 	}
-	
+
 	public void enableLeaning(boolean b){
 		this.enableLeaning = b;
 	}
-	
-	public void printUnsupportedFeatures(){
-		System.out.println(this.unsupportedFeaturesToString());
-	}
-	
+
+
 	public boolean equalQueries(int x, int y){
 		return canonQueries.get(x).equals(canonQueries.get(y));
 	}
-	
+
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException{
 		QueryParserTest qp = new QueryParserTest(new File("testFiles/filterTest5.txt"));

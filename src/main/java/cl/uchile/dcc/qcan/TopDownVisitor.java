@@ -54,7 +54,6 @@ public class TopDownVisitor {
 	}
 	
 	public Op visit(OpN op) {
-		System.out.println(op);
 		List<Op> ops = op.getElements();
 		List<Op> newOps = new ArrayList<Op>();
 		for (Op o : ops) {

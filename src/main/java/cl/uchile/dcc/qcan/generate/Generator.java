@@ -65,7 +65,7 @@ public class Generator {
 		initialVars = e.getNumberOfVars();
 		initialTriples = e.getNumberOfTriples();
 		long t = System.nanoTime();
-		RGraph a = e.getCanonicalForm(false);
+		RGraph a = e.getCanonicalForm();
 		t = System.nanoTime() - t;
 		finalNodes = a.getNumberOfNodes();
 		finalVars = a.getNumberOfVars();

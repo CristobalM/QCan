@@ -107,7 +107,7 @@ public class UCQGenerator {
 		g.generateTriples();
 		RGraph e = g.generateGraph(4,2);
 		e.print();
-		RGraph a = e.getCanonicalForm(false);
+		RGraph a = e.getCanonicalForm();
 		a.print();
 		System.out.println("");
 	}

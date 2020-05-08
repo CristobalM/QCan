@@ -80,7 +80,6 @@ public class BindVisitor implements ExprVisitor {
 		args.add(arg2);
 		args.add(arg3);
 		nodeStack.add(bindGraph.filterFunction(func.getFunctionSymbol().getSymbol(), args));
-		System.out.println(func.getFunctionSymbol().getSymbol());
 	}
 
 	@Override
@@ -96,7 +95,6 @@ public class BindVisitor implements ExprVisitor {
 	@Override
 	public void visit(ExprFunctionOp funcOp) {
 		// TODO Auto-generated method stub
-		System.out.println(funcOp);
 	}
 
 	@Override

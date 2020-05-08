@@ -9,6 +9,8 @@ import org.apache.jena.sparql.algebra.OpVisitor;
 import org.apache.jena.sparql.algebra.OpWalker;
 import org.apache.jena.sparql.algebra.op.*;
 import org.apache.jena.sparql.expr.ExprList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,19 +18,12 @@ import java.util.Set;
 public class WellDesignedOptional implements OpVisitor {
 	
 	Set<Node> varsMentioned = new HashSet<Node>();
-	
-	public Op transform(OpLeftJoin leftjoin, Op left, Op right) {
-		System.out.println(leftjoin.getExprs());
-		System.out.println(left);
-		System.out.println(right);
-		System.out.println();
-		return right;
-	}
-	
+
+	final Logger logger = LoggerFactory.getLogger(WellDesignedOptional.class);
+
 	public static void main(String[] args) {
 		String s = "SELECT * WHERE { ?s <http://ex.org/p> ?a . ?s <http://ex.org/u> ?d . OPTIONAL { ?s <http://ex.org/q> ?b . ?s <http://ex.org/r> ?c . } OPTIONAL { ?s <http://ex.org/s> ?e . ?s <http://ex.org/t> ?f . } }";
 		Op op = Algebra.compile(QueryFactory.create(s));
-		System.out.println(op);
 		OpWalker.walk(op, new WellDesignedOptional());
 	}
 
@@ -165,9 +160,8 @@ public class WellDesignedOptional implements OpVisitor {
 
 	@Override
 	public void visit(OpLeftJoin arg0) {
-		System.out.println(arg0);
-		System.out.println(varsMentioned);
-		System.out.println();
+		logger.debug(arg0.toString());
+		logger.debug(String.valueOf(varsMentioned));
 	}
 
 	@Override

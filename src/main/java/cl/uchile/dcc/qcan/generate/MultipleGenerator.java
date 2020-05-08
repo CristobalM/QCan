@@ -3,6 +3,8 @@ package cl.uchile.dcc.qcan.generate;
 import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 import cl.uchile.dcc.qcan.RGraph;
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,6 +28,8 @@ public class MultipleGenerator implements FileVisitor<Path> {
 	public BufferedWriter bw;
 	private long timeout = 60*10*1000;
 	Queue<String> queue = new LinkedBlockingQueue<String>();
+
+	private static final Logger logger = LoggerFactory.getLogger(MultipleGenerator.class);
 	
 	public MultipleGenerator(Path p) throws IOException{
 		this.startingFile = p;	
@@ -52,7 +56,7 @@ public class MultipleGenerator implements FileVisitor<Path> {
 
 	@Override
 	public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) throws IOException {
-		System.out.println(file);
+		logger.debug(String.valueOf(file));
 		Thread slave = new Thread(new Runnable(){
 			@Override
 			public void run() {
@@ -67,7 +71,7 @@ public class MultipleGenerator implements FileVisitor<Path> {
 					initialVars = e.getNumberOfVars();
 					initialTriples = e.getNumberOfTriples();
 					long t = System.nanoTime();
-					RGraph a = e.getCanonicalForm(false);
+					RGraph a = e.getCanonicalForm();
 					t = System.nanoTime() - t;
 					finalNodes = a.getNumberOfNodes();
 					finalVars = a.getNumberOfVars();
@@ -81,10 +85,10 @@ public class MultipleGenerator implements FileVisitor<Path> {
 					output += initialTriples +"\t";
 					output += finalTriples;
 					queue.add(output);
-				} catch (InterruptedException | HashCollisionException | IOException e2) {
-					System.err.println(e2.getMessage());
+				} catch (InterruptedException | HashCollisionException | IOException e) {
+					logger.error("failed visit file run", e);
 				} catch (StackOverflowError e){
-					return;
+					logger.error("Stack overflow error", e);
 				}
 			}
 			
@@ -93,7 +97,7 @@ public class MultipleGenerator implements FileVisitor<Path> {
 		try {
 			slave.join(timeout);
 		} catch (InterruptedException e) {
-			System.err.println(e.getMessage());
+			logger.error("Interrupted visit file", e);
 		}
 		return FileVisitResult.CONTINUE;
 	}
@@ -134,9 +138,8 @@ public class MultipleGenerator implements FileVisitor<Path> {
 			mg.start();
 			mg.done();
 	    }
-	    catch (ParseException exception){
-	        System.out.print("Parse error: ");
-	        System.out.println(exception.getMessage());
+	    catch (ParseException e){
+	        logger.error("Parse error", e);
 	    }
 	}
 

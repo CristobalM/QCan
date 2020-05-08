@@ -81,7 +81,6 @@ public class FilterVisitor implements ExprVisitor {
 		args.add(arg2);
 		args.add(arg3);
 		nodeStack.add(filterGraph.filterFunction(func.getFunctionSymbol().getSymbol(), args));
-		System.out.println(func.getFunctionSymbol().getSymbol());
 	}
 
 	@Override
@@ -102,7 +101,7 @@ public class FilterVisitor implements ExprVisitor {
 		try {
 			RGraph r = rb.getResult();
 			r.print();
-			RGraph r1 = r.getCanonicalForm(false);
+			RGraph r1 = r.getCanonicalForm();
 			r1.print();
 			GraphUtil.addInto(filterGraph.graph, r.graph);
 			nodeStack.add(filterGraph.filterFunction(funcOp.getFunctionSymbol().getSymbol(),r.root));

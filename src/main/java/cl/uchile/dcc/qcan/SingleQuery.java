@@ -12,6 +12,8 @@ import org.apache.jena.sparql.algebra.optimize.TransformExtendCombine;
 import org.apache.jena.sparql.algebra.optimize.TransformMergeBGPs;
 import org.apache.jena.sparql.algebra.optimize.TransformPathFlatternStd;
 import org.apache.jena.sparql.algebra.optimize.TransformSimplify;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class that takes a query as an input, performs a canonicalisation and measures how long it takes.
@@ -127,13 +129,13 @@ public class SingleQuery {
 	
 	public void canonicalise() throws InterruptedException, HashCollisionException{
 		this.graph.setLeaning(enableLeaning);
-		canonGraph = this.graph.getCanonicalForm(false);
+		canonGraph = this.graph.getCanonicalForm();
 		canonicalLabel = this.graph.getGraphLabel();
 	}
 	
 	public void canonicalise(boolean verbose) throws InterruptedException, HashCollisionException{
 		this.graph.setLeaning(enableLeaning);
-		canonGraph = this.graph.getCanonicalForm(verbose);
+		canonGraph = this.graph.getCanonicalForm();
 		canonicalLabel = this.graph.getGraphLabel();
 	}
 	
@@ -232,12 +234,15 @@ public class SingleQuery {
 	}
 	
 	public static void main(String[] args) throws InterruptedException, HashCollisionException{
+		Logger logger = LoggerFactory.getLogger(SingleQuery.class);
+
+
 		String q = "prefix : <http://example.org/> SELECT DISTINCT ?x WHERE { ?x (:p|:q)+ ?y . ?x :p+ ?z . }";
 		q = "prefix : <http://example.org/> SELECT DISTINCT ?x WHERE { ?x :p1 ?n1 . ?n1 :a* ?n2 . ?n2 :a* ?n1 . ?y :p2 ?n2 . ?n2 :a*/:b* ?n3 . ?n3 :a*|:c* ?n2 . ?z :p3 ?n3 .  }";
 		@SuppressWarnings("unused")
 		SingleQuery sq = new SingleQuery(q,true,true,true);
 		sq.getCanonicalGraph().print();
-		System.out.println(sq.getQuery());
+		logger.info(sq.getQuery());
 	}
 
 	public String getCanonicalLabel() {

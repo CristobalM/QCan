@@ -38,6 +38,8 @@ import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.semanticweb.yars.nx.NodeComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -57,6 +59,7 @@ public class RGraph {
 	public boolean distinct = false;
 	public boolean leaning = true;
 	public boolean containsPaths = false;
+	final Logger logger = LoggerFactory.getLogger(RGraph.class);
 	final String URI = "http://example.org/";
 	private final Node typeNode = NodeFactory.createURI(this.URI+"type");
 	private final Node tpNode = NodeFactory.createURI(this.URI+"TP");
@@ -264,7 +267,7 @@ public class RGraph {
 				objects.add(object);
 			}
 			else{
-				System.err.println("Invalid blank node label.");
+				logger.error("Invalid blank node label.");
 			}
 		}
 		for (Node p : predicates) {
@@ -1202,20 +1205,17 @@ public class RGraph {
 	public void printTurtle(Graph g) {
 		ModelFactory.createModelForGraph(g).write(System.out, "TURTLE");
 	}
-	
+
 	public void print(){
+		if(!logger.isDebugEnabled()){
+			return;
+		}
+
 		ExtendedIterator<Triple> e = GraphUtil.findAll(this.graph);
 		while (e.hasNext()){
-			System.out.println(e.next());
+			logger.debug(String.valueOf(e.next()));
 		}
-		System.out.println("");
-	}
-	
-	public void printGraph(Graph g){
-		ExtendedIterator<Triple> e = GraphUtil.findAll(g);
-		while (e.hasNext()){
-			System.out.println(e.next() + " .");
-		}
+
 	}
 	
 	/**
@@ -1294,73 +1294,70 @@ public class RGraph {
 	}
 	
 	/**
-	 * @param verbose A boolean that allows messages to appear during canonicalisation.
 	 * @return Returns the canonical form of the r-graph.
 	 * @throws InterruptedException
 	 * @throws HashCollisionException
 	 */
-	public RGraph getCanonicalForm(boolean verbose) throws InterruptedException, HashCollisionException{
-		if (verbose){
-			System.out.println("CQ Normalisation");
-		}
+	public RGraph getCanonicalForm() throws InterruptedException, HashCollisionException{
+
+		logger.debug("CQ Normalisation");
+
 		boolean distinct = this.graph.contains(this.root, distinctNode, NodeFactory.createLiteralByValue(true, XSDDatatype.XSDboolean));
 		removeRedundantOperators();
 		if (leaning && distinct){
-			if (verbose){
-				System.out.println("Branch relabelling");
-			}
+
+			logger.debug("Branch relabelling");
+
 			try{
 				if (!containsPaths) {
 					branchRelabelling();
 				}
 			}
 			catch (Exception e){
-				e.printStackTrace();
+				logger.error("branchRelabelling failed", e);
 			}
-			if (verbose){
-				print();
-				System.out.println("UCQ minimisation");
-			}
+
+			print();
+			logger.debug("UCQ minimisation");
+
 			RGraph ans;
 			if (containsPaths) {
 				ans = this;
-//				ans = uc2rpqMinimisation();
 			}
 			else {
 				ans = ucqMinimisation();
 			}
-			if (verbose){
-				ans.print();
-				System.out.println("Beginning leaning.");
-			}
+
+			ans.print();
+			logger.debug("Beginning leaning.");
+
 			UpdateAction.execute(duplicatesRule,ans.graph);
-			if (verbose){
-				System.out.println("Beginning labelling");
-			}
+
+			logger.debug("Beginning labelling");
+
 			GraphLabellingResult glr = this.label(ans.getTriples());
-			saveLabel(verbose, glr);
+			saveLabel(glr);
 			ans = new RGraph(glr.getGraph());
-			if (verbose){
-				ans.print();
-			}
+
+			ans.print();
+
 			return ans;
 		}
 		else{
 			GraphLabellingResult glr = this.label(this.getTriples());
-			saveLabel(verbose, glr);
+			saveLabel(glr);
 			RGraph ans = new RGraph(glr.getGraph());
 			return ans;
 		}	
 	}
 
-	private void saveLabel(boolean verbose, GraphLabellingResult glr) {
+	private void saveLabel(GraphLabellingResult glr) {
 		this.graphLabel = glr.getUniqueGraphHash().toString();
-		if (verbose){
-			System.out.println("Labelling results: \n");
-			System.out.println("Number of blank nodes: "+glr.getBnodeCount());
-			System.out.println("Number of colouring iterations: "+glr.getColourIterationCount());
-			System.out.println("Number of partitions found: "+glr.getPartitionCount());
-		}
+
+		logger.debug("Labelling results: \n");
+		logger.debug("Number of blank nodes: "+glr.getBnodeCount());
+		logger.debug("Number of colouring iterations: "+glr.getColourIterationCount());
+		logger.debug("Number of partitions found: "+glr.getPartitionCount());
 	}
 
 	/**
@@ -1488,7 +1485,6 @@ public class RGraph {
 					}
 				}
 				UpdateAction.execute(filterVarsRule,filterGraph);	
-				//printGraph(filterGraph);
 				List<Node> filterVars = GraphUtil.listSubjects(filterGraph, typeNode, varNode).toList();
 				for (Node f : filterVars){
 					filterGraph.add(Triple.create(f, valueNode, NodeFactory.createLiteral(f.getBlankNodeLabel())));
@@ -1682,7 +1678,6 @@ public class RGraph {
 						}
 					}
 					UpdateAction.execute(filterVarsRule,filterGraph);	
-					//printGraph(filterGraph);
 					List<Node> filterVars = GraphUtil.listSubjects(filterGraph, typeNode, varNode).toList();
 					for (Node f : filterVars){
 						filterGraph.add(Triple.create(f, valueNode, NodeFactory.createLiteral(f.getBlankNodeLabel())));
@@ -1697,30 +1692,7 @@ public class RGraph {
 					Map<Node,BasicPattern> bpMap = new HashMap<Node,BasicPattern>();
 					Map<Node,String> stringMap = new HashMap<Node,String>();
 					ExtendedIterator<Triple> triples = GraphUtil.findAll(g);
-//					while (triples.hasNext()) {
-//						Triple t = triples.next();
-//						Node s = t.getSubject();
-//						Node p = t.getPredicate();
-//						Node o = t.getObject();
-//						if (p.equals(subNode) || p.equals(preNode) || p.equals(objNode)) {
-//							continue;
-//						}
-//						else if (p.equals(tempNode) || p.equals(valueNode)) {
-//							auxGraph.add(Triple.create(s, p, o));
-//							continue;
-//						}
-////						if (s.isBlank()) {
-////							s = Var.alloc(s.getBlankNodeLabel());
-////						}
-////						if (p.isBlank()) {
-////							p = Var.alloc(p.getBlankNodeLabel());
-////						}
-////						if (o.isBlank()) {
-////							o = Var.alloc(o.getBlankNodeLabel());
-////						}
-//						bp.add(Triple.create(s, p, o));
-//						auxGraph.add(Triple.create(s, p, o));
-//					}
+
 					for (Node tp : triplePathsList) {
 						Node s = GraphUtil.listObjects(g, tp, subNode).next();
 						Node o = GraphUtil.listObjects(g, tp, objNode).next();
@@ -1776,7 +1748,6 @@ public class RGraph {
 							bp0.add(Triple.create(tp, preNode, predicate));
 							bp0.add(Triple.create(tp, objNode, object));
 							bpMap.put(predicate, bp0);
-							System.out.println("Path: "+tPath);
 						}
 						else {
 							if (p.isURI()) {
@@ -1793,13 +1764,11 @@ public class RGraph {
 								bp0.add(Triple.create(tp, preNode, predicate));
 								bp0.add(Triple.create(tp, objNode, object));
 								bpMap.put(predicate, bp0);
-								System.out.println("Path: "+tPath);
 							}
 							else {
 								auxGraph.add(Triple.create(tp, preNode, predicate));
 							}
 						}	
-//						bp.add(Triple.create(subject, predicate, object));
 						auxGraph.add(Triple.create(tp, subNode, s));
 						auxGraph.add(Triple.create(tp, objNode, o));
 						bp.add(Triple.create(Var.alloc(tp.getBlankNodeLabel()), subNode, subject));
@@ -1807,7 +1776,6 @@ public class RGraph {
 						bp.add(Triple.create(Var.alloc(tp.getBlankNodeLabel()), objNode, object));
 					}
 					Op op = new OpBGP(bp);
-					System.out.println("BGP: "+op+"\n");
 					for (Node n : pathMap.keySet()) {
 						Op op0 = new OpBGP(bp);
 						List<Var> vars = new ArrayList<Var>();
@@ -1817,26 +1785,15 @@ public class RGraph {
 						q.setDistinct(true);
 						QueryExecution qe = QueryExecutionFactory.create(q, ModelFactory.createModelForGraph(auxGraph));
 						ResultSet rs = qe.execSelect();
-						while (rs.hasNext()) {
-							System.out.println(rs.next());
-						}
-						System.out.println();
 					}
-					System.out.println();
-					printGraph(auxGraph);
 					for (Node n : bpMap.keySet()) {
 						Op op0 = new OpBGP(bpMap.get(n));
 						List<Var> vars = new ArrayList<Var>();
-						//vars.add(Var.alloc(n));
 						op0 = new OpProject(op0, vars);
 						Query q = OpAsQuery.asQuery(op0);
-						//q.setDistinct(true);
 						QueryExecution qe = QueryExecutionFactory.create(q, ModelFactory.createModelForGraph(auxGraph));
 						ResultSet rs = qe.execSelect();
-						while (rs.hasNext()) {
-							System.out.println(rs.next());
-						}
-						System.out.println();
+
 					}
 					BasicPattern bp2 = new BasicPattern();
 					bp2.add(Triple.create(Var.alloc("s"), Var.alloc("p"), Var.alloc("o")));
@@ -1847,14 +1804,7 @@ public class RGraph {
 					q2.setDistinct(true);
 					QueryExecution qe = QueryExecutionFactory.create(q, ModelFactory.createModelForGraph(auxGraph));
 					QueryExecution qe2 = QueryExecutionFactory.create(q2, ModelFactory.createModelForGraph(auxGraph));
-					System.out.println();
-					printGraph(auxGraph);
 					ResultSet rs2 = qe2.execSelect();
-					System.out.println();
-					while (rs2.hasNext()) {
-						System.out.println(rs2.next());
-					}
-					System.out.println("End of CQ\n");
 				}
 				for (int i = 0; i < currentSet.size(); i++) {
 					for (int j = 0; j < currentSet.size(); j++) {
@@ -1923,7 +1873,6 @@ public class RGraph {
 				}
 			}
 			UpdateAction.execute(filterVarsRule,filterGraph);	
-			//printGraph(filterGraph);
 			List<Node> filterVars = GraphUtil.listSubjects(filterGraph, typeNode, varNode).toList();
 			for (Node f : filterVars){
 				filterGraph.add(Triple.create(f, valueNode, NodeFactory.createLiteral(f.getBlankNodeLabel())));
@@ -1982,7 +1931,6 @@ public class RGraph {
 						PGraph pg = new PGraph(tPath);
 						currentSet.add(pg);
 						pathMap.put(predicate, pg);
-						System.out.println("Path: "+tPath);
 					}
 					else {
 						if (p.isURI()) {
@@ -1992,7 +1940,6 @@ public class RGraph {
 							PGraph pg = new PGraph(tPath);
 							currentSet.add(pg);
 							pathMap.put(predicate, pg);
-							System.out.println("Path: "+tPath);
 						}
 					}	
 					bp.add(Triple.create(tp, subNode, subject));
@@ -2008,14 +1955,7 @@ public class RGraph {
 				Query q = OpAsQuery.asQuery(op);
 				q.setDistinct(true);
 				QueryExecution qe = QueryExecutionFactory.create(q, ModelFactory.createModelForGraph(g));
-				printGraph(g);
 				ResultSet rs = qe.execSelect();
-				System.out.println();
-				while (rs.hasNext()) {
-					System.out.println(rs.next());
-				}
-				System.out.println(bp);
-				System.out.println("End of CQ\n");
 				graphs.add(currentSet);
 			}
 			for (int i = 0; i < graphs.size(); i++) {
@@ -2030,7 +1970,6 @@ public class RGraph {
 				}
 			}
 		}
-		System.out.println("Loaded");
 		return this;
 	}
 

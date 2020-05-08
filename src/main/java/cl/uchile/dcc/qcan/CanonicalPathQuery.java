@@ -54,7 +54,6 @@ public class CanonicalPathQuery {
 		if (graph.contains(Triple.create(start, typeNode, finalNode))) {
 			for (Node p : predicates) {
 				if (GraphUtil.listObjects(graph, start, p).hasNext()) {
-					System.out.println(p);
 					canonicalGraph.add(Triple.create(subject, p, object));
 					break;
 				}
