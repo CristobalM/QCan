@@ -116,7 +116,8 @@ public class RGraph {
 	private final UpdateRequest joinLabelRule = UpdateFactory.read(getClass().getResourceAsStream("/rules/branchLabel/joinLabel.ru"));
 	private final UpdateRequest tripleRelabelRule = UpdateFactory.read(getClass().getResourceAsStream("/rules/branchLabel/tripleRelabel.ru"));
 	private final UpdateRequest askRule = UpdateFactory.read(getClass().getResourceAsStream("/rules/branchLabel/ask.ru"));
-	
+	private String graphLabel;
+
 
 	/**
 	 * @param triples List of RDF triples.
@@ -1337,13 +1338,7 @@ public class RGraph {
 				System.out.println("Beginning labelling");
 			}
 			GraphLabellingResult glr = this.label(ans.getTriples());
-			
-			if (verbose){
-				System.out.println("Labelling results: \n");
-				System.out.println("Number of blank nodes: "+glr.getBnodeCount());
-				System.out.println("Number of colouring iterations: "+glr.getColourIterationCount());
-				System.out.println("Number of partitions found: "+glr.getPartitionCount());
-			}
+			saveLabel(verbose, glr);
 			ans = new RGraph(glr.getGraph());
 			if (verbose){
 				ans.print();
@@ -1352,17 +1347,22 @@ public class RGraph {
 		}
 		else{
 			GraphLabellingResult glr = this.label(this.getTriples());
-			if (verbose){
-				System.out.println("Labelling results: \n");
-				System.out.println("Number of blank nodes: "+glr.getBnodeCount());
-				System.out.println("Number of colouring iterations: "+glr.getColourIterationCount());
-				System.out.println("Number of partitions found: "+glr.getPartitionCount());
-			}
+			saveLabel(verbose, glr);
 			RGraph ans = new RGraph(glr.getGraph());
 			return ans;
 		}	
 	}
-	
+
+	private void saveLabel(boolean verbose, GraphLabellingResult glr) {
+		this.graphLabel = glr.getUniqueGraphHash().toString();
+		if (verbose){
+			System.out.println("Labelling results: \n");
+			System.out.println("Number of blank nodes: "+glr.getBnodeCount());
+			System.out.println("Number of colouring iterations: "+glr.getColourIterationCount());
+			System.out.println("Number of partitions found: "+glr.getPartitionCount());
+		}
+	}
+
 	/**
 	 * @param n A node that represents a literal value.
 	 * @return Returns a string representation of the literal value with no datatype.
@@ -2153,5 +2153,9 @@ public class RGraph {
 		graph.add(Triple.create(n, silentNode, NodeFactory.createLiteralByValue(silent, XSDDatatype.XSDboolean)));
 		graph.add(Triple.create(n, argNode, root));
 		this.root = n;	
+	}
+
+	public String getGraphLabel() {
+		return graphLabel;
 	}
 }

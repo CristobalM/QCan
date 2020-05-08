@@ -32,6 +32,8 @@ public class SingleQuery {
 	private boolean containsFilter = false;
 	private boolean containsSolutionMods = false;
 	private boolean containsNamedGraphs = false;
+
+	private String canonicalLabel;
 	
 	
 	public SingleQuery(String q) throws InterruptedException, HashCollisionException{
@@ -126,11 +128,13 @@ public class SingleQuery {
 	public void canonicalise() throws InterruptedException, HashCollisionException{
 		this.graph.setLeaning(enableLeaning);
 		canonGraph = this.graph.getCanonicalForm(false);
+		canonicalLabel = this.graph.getGraphLabel();
 	}
 	
 	public void canonicalise(boolean verbose) throws InterruptedException, HashCollisionException{
 		this.graph.setLeaning(enableLeaning);
 		canonGraph = this.graph.getCanonicalForm(verbose);
+		canonicalLabel = this.graph.getGraphLabel();
 	}
 	
 	public boolean determineSemantics(){
@@ -234,5 +238,9 @@ public class SingleQuery {
 		SingleQuery sq = new SingleQuery(q,true,true,true);
 		sq.getCanonicalGraph().print();
 		System.out.println(sq.getQuery());
+	}
+
+	public String getCanonicalLabel() {
+		return canonicalLabel;
 	}
 }

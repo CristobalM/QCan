@@ -6,16 +6,19 @@ import org.junit.Test;
 import static org.junit.Assert.fail;
 
 public class LabelingTests {
+
+    String queryOne = "SELECT DISTINCT ?a WHERE { { ?a <http://example.org/p> ?b  }   UNION { ?a <http://example.org/q> ?b  }   UNION { ?a <http://example.org/r> ?b  }}";
+
     @Test
-    public void LabelTestOne(){
+    public void LabelTestOne() {
         SingleQuery singleQuery = null;
         try {
-            singleQuery = new SingleQuery("SELECT DISTINCT ?a WHERE { { ?a <http://example.org/p> ?b  }   UNION { ?a <http://example.org/q> ?b  }   UNION { ?a <http://example.org/r> ?b  }}");
+            singleQuery = new SingleQuery(queryOne);
         } catch (InterruptedException | GraphColouring.HashCollisionException e) {
             e.printStackTrace();
         }
 
-        if(singleQuery == null){
+        if (singleQuery == null) {
             fail("singleQuery is null");
         }
 
@@ -28,7 +31,11 @@ public class LabelingTests {
         String canonicalQuery = singleQuery.getQuery();
 
         System.out.println(canonicalQuery);
+    }
 
-
+    @Test
+    public void labelTestTwo() {
+        String labelOne = QueryCanonicalLabeller.labelQuery(queryOne);
+        System.out.println(labelOne);
     }
 }
