@@ -1,32 +1,22 @@
  package cl.uchile.dcc.qcan.data;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+ import org.apache.jena.ext.com.google.common.collect.HashMultiset;
+ import org.apache.jena.ext.com.google.common.collect.Multiset;
+ import org.apache.jena.query.Query;
+ import org.apache.jena.query.QueryFactory;
+ import org.apache.jena.query.QueryParseException;
+ import org.apache.jena.sparql.algebra.Algebra;
+ import org.apache.jena.sparql.algebra.Op;
+ import org.apache.jena.sparql.algebra.OpWalker;
 
-import org.apache.jena.ext.com.google.common.collect.HashMultiset;
-import org.apache.jena.ext.com.google.common.collect.Multiset;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QueryParseException;
-import org.apache.jena.sparql.algebra.Algebra;
-import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.sparql.algebra.OpWalker;
+ import java.io.*;
+ import java.nio.file.FileVisitResult;
+ import java.nio.file.FileVisitor;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.nio.file.attribute.BasicFileAttributes;
+ import java.text.SimpleDateFormat;
+ import java.util.*;
 
 public class QueryFeaturesCounter {
 	

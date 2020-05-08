@@ -1,8 +1,8 @@
 package cl.uchile.dcc.qcan.tools;
 
-import java.util.Comparator;
-
 import org.apache.jena.graph.Node;
+
+import java.util.Comparator;
 
 public class NodeComparator implements Comparator<Node>{
 

@@ -1,10 +1,6 @@
 package cl.uchile.dcc.qcan;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-
+import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 import cl.uchile.dcc.qcan.externalfix.ExprWalker;
 import org.apache.jena.graph.GraphUtil;
 import org.apache.jena.graph.Node;
@@ -13,10 +9,12 @@ import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.OpWalker;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.*;
-
 import org.apache.jena.sparql.graph.GraphFactory;
 
-import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * A class based on Jena's ExprVisitor that creates an r-graph that represents a FILTER expression.

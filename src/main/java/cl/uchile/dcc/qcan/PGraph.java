@@ -1,42 +1,22 @@
 package cl.uchile.dcc.qcan;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import cl.uchile.dcc.qcan.externalfix.JenaModelIterator;
-import org.apache.jena.atlas.lib.Pair;
-import org.apache.jena.graph.Graph;
-import org.apache.jena.graph.GraphExtract;
-import org.apache.jena.graph.GraphUtil;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
-import org.apache.jena.graph.TripleBoundary;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.sparql.core.TriplePath;
-import org.apache.jena.sparql.graph.GraphFactory;
-import org.apache.jena.sparql.path.P_Alt;
-import org.apache.jena.sparql.path.P_Seq;
-import org.apache.jena.sparql.path.P_ZeroOrMore1;
-import org.apache.jena.sparql.path.Path;
-import org.apache.jena.sparql.path.PathFactory;
-import org.apache.jena.sparql.sse.SSE;
-import org.apache.jena.util.iterator.ExtendedIterator;
-import org.semanticweb.yars.nx.NodeComparator;
-
 import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 import cl.uchile.dcc.blabel.label.GraphLabelling;
 import cl.uchile.dcc.blabel.label.GraphLabelling.GraphLabellingArgs;
 import cl.uchile.dcc.blabel.label.GraphLabelling.GraphLabellingResult;
+import cl.uchile.dcc.qcan.externalfix.JenaModelIterator;
+import org.apache.jena.atlas.lib.Pair;
+import org.apache.jena.graph.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.core.TriplePath;
+import org.apache.jena.sparql.graph.GraphFactory;
+import org.apache.jena.sparql.path.*;
+import org.apache.jena.sparql.sse.SSE;
+import org.apache.jena.util.iterator.ExtendedIterator;
+import org.semanticweb.yars.nx.NodeComparator;
+
+import java.util.*;
 
 public class PGraph {
 	private Graph nfa;

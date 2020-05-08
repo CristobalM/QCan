@@ -1,12 +1,9 @@
 package cl.uchile.dcc.qcan.tools;
 
+import org.apache.commons.cli.*;
+
+import java.io.*;
 import java.net.URLDecoder;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -14,13 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 public class URLtoUTFParser implements FileVisitor<Path> {
 	

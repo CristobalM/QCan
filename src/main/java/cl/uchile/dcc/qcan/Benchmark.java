@@ -1,22 +1,15 @@
 package cl.uchile.dcc.qcan;
 
+import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
+import org.apache.commons.cli.*;
+import org.apache.jena.ext.com.google.common.collect.HashMultiset;
+import org.apache.jena.ext.com.google.common.collect.Multiset;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.jena.ext.com.google.common.collect.HashMultiset;
-import org.apache.jena.ext.com.google.common.collect.Multiset;
-
-import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 
 public class Benchmark {
 	public File f;

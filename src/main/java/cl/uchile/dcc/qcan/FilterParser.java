@@ -1,8 +1,9 @@
 package cl.uchile.dcc.qcan;
 
-import java.util.regex.Pattern;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+
+import java.util.regex.Pattern;
 public class FilterParser {
 	
 	private RGraph graph;

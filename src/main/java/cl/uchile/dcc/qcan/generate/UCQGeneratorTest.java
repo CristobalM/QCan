@@ -1,21 +1,15 @@
 package cl.uchile.dcc.qcan.generate;
 
+import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
+import cl.uchile.dcc.qcan.RGraph;
+import org.apache.commons.cli.*;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import cl.uchile.dcc.qcan.RGraph;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
-import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 
 public class UCQGeneratorTest {
 	

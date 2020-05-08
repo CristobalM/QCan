@@ -1,32 +1,17 @@
 package cl.uchile.dcc.qcan;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Pattern;
-
+import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
+import cl.uchile.dcc.blabel.label.GraphLabelling;
+import cl.uchile.dcc.blabel.label.GraphLabelling.GraphLabellingArgs;
+import cl.uchile.dcc.blabel.label.GraphLabelling.GraphLabellingResult;
+import cl.uchile.dcc.blabel.lean.BFSGraphLeaning;
+import cl.uchile.dcc.blabel.lean.DFSGraphLeaning;
+import cl.uchile.dcc.blabel.lean.GraphLeaning.GraphLeaningResult;
 import cl.uchile.dcc.qcan.externalfix.ExprWalker;
 import cl.uchile.dcc.qcan.externalfix.JenaModelIterator;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.graph.Graph;
-import org.apache.jena.graph.GraphExtract;
-import org.apache.jena.graph.GraphUtil;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
-import org.apache.jena.graph.TripleBoundary;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.ResultSet;
+import org.apache.jena.graph.*;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.algebra.Algebra;
@@ -54,13 +39,8 @@ import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.semanticweb.yars.nx.NodeComparator;
 
-import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
-import cl.uchile.dcc.blabel.label.GraphLabelling;
-import cl.uchile.dcc.blabel.label.GraphLabelling.GraphLabellingArgs;
-import cl.uchile.dcc.blabel.label.GraphLabelling.GraphLabellingResult;
-import cl.uchile.dcc.blabel.lean.BFSGraphLeaning;
-import cl.uchile.dcc.blabel.lean.DFSGraphLeaning;
-import cl.uchile.dcc.blabel.lean.GraphLeaning.GraphLeaningResult;
+import java.util.*;
+import java.util.regex.Pattern;
 
 
 

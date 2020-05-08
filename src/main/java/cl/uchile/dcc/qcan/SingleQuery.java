@@ -1,5 +1,6 @@
 package cl.uchile.dcc.qcan;
 
+import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QueryParseException;
@@ -11,8 +12,6 @@ import org.apache.jena.sparql.algebra.optimize.TransformExtendCombine;
 import org.apache.jena.sparql.algebra.optimize.TransformMergeBGPs;
 import org.apache.jena.sparql.algebra.optimize.TransformPathFlatternStd;
 import org.apache.jena.sparql.algebra.optimize.TransformSimplify;
-
-import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 
 /**
  * A class that takes a query as an input, performs a canonicalisation and measures how long it takes.

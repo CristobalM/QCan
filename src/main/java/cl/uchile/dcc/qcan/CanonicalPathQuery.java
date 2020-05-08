@@ -1,24 +1,10 @@
 package cl.uchile.dcc.qcan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.jena.graph.Graph;
-import org.apache.jena.graph.GraphExtract;
-import org.apache.jena.graph.GraphUtil;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
-import org.apache.jena.graph.TripleBoundary;
+import org.apache.jena.graph.*;
 import org.apache.jena.sparql.graph.GraphFactory;
-import org.apache.jena.sparql.path.Path;
-import org.apache.jena.sparql.path.PathFactory;
 import org.apache.jena.util.iterator.ExtendedIterator;
+
+import java.util.List;
 
 public class CanonicalPathQuery {
 	Graph graph;

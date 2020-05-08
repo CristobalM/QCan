@@ -1,10 +1,6 @@
 package cl.uchile.dcc.qcan;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.TransformCopy;
@@ -12,7 +8,7 @@ import org.apache.jena.sparql.algebra.op.OpBGP;
 import org.apache.jena.sparql.algebra.op.OpUnion;
 import org.apache.jena.sparql.core.BasicPattern;
 
-import cl.uchile.dcc.blabel.label.GraphColouring.HashCollisionException;
+import java.util.*;
 
 public class BGPSort extends TransformCopy {
 	List<HashSet<String>> ucqVars = new ArrayList<HashSet<String>>();

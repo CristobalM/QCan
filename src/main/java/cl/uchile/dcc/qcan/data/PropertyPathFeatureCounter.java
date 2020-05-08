@@ -1,29 +1,9 @@
 package cl.uchile.dcc.qcan.data;
 
-import java.util.HashSet;
-
-import org.apache.jena.sparql.path.P_Alt;
-import org.apache.jena.sparql.path.P_Distinct;
-import org.apache.jena.sparql.path.P_FixedLength;
-import org.apache.jena.sparql.path.P_Inverse;
-import org.apache.jena.sparql.path.P_Link;
-import org.apache.jena.sparql.path.P_Mod;
-import org.apache.jena.sparql.path.P_Multi;
-import org.apache.jena.sparql.path.P_NegPropSet;
-import org.apache.jena.sparql.path.P_OneOrMore1;
-import org.apache.jena.sparql.path.P_OneOrMoreN;
-import org.apache.jena.sparql.path.P_Path0;
-import org.apache.jena.sparql.path.P_Path1;
-import org.apache.jena.sparql.path.P_Path2;
-import org.apache.jena.sparql.path.P_ReverseLink;
-import org.apache.jena.sparql.path.P_Seq;
-import org.apache.jena.sparql.path.P_Shortest;
-import org.apache.jena.sparql.path.P_ZeroOrMore1;
-import org.apache.jena.sparql.path.P_ZeroOrMoreN;
-import org.apache.jena.sparql.path.P_ZeroOrOne;
-import org.apache.jena.sparql.path.Path;
-import org.apache.jena.sparql.path.PathVisitor;
+import org.apache.jena.sparql.path.*;
 import org.apache.jena.sparql.sse.SSE;
+
+import java.util.HashSet;
 
 public class PropertyPathFeatureCounter implements PathVisitor {
 	

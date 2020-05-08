@@ -1,39 +1,12 @@
 package cl.uchile.dcc.qcan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
 import org.apache.jena.atlas.lib.Pair;
-import org.apache.jena.graph.Graph;
-import org.apache.jena.graph.GraphUtil;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
+import org.apache.jena.graph.*;
 import org.apache.jena.sparql.graph.GraphFactory;
-import org.apache.jena.sparql.path.P_Alt;
-import org.apache.jena.sparql.path.P_Distinct;
-import org.apache.jena.sparql.path.P_FixedLength;
-import org.apache.jena.sparql.path.P_Inverse;
-import org.apache.jena.sparql.path.P_Link;
-import org.apache.jena.sparql.path.P_Mod;
-import org.apache.jena.sparql.path.P_Multi;
-import org.apache.jena.sparql.path.P_NegPropSet;
-import org.apache.jena.sparql.path.P_OneOrMore1;
-import org.apache.jena.sparql.path.P_OneOrMoreN;
-import org.apache.jena.sparql.path.P_Path0;
-import org.apache.jena.sparql.path.P_ReverseLink;
-import org.apache.jena.sparql.path.P_Seq;
-import org.apache.jena.sparql.path.P_Shortest;
-import org.apache.jena.sparql.path.P_ZeroOrMore1;
-import org.apache.jena.sparql.path.P_ZeroOrMoreN;
-import org.apache.jena.sparql.path.P_ZeroOrOne;
-import org.apache.jena.sparql.path.PathVisitor;
+import org.apache.jena.sparql.path.*;
 import org.apache.jena.util.iterator.ExtendedIterator;
+
+import java.util.*;
 
 public class PathWalker implements PathVisitor {
 	
