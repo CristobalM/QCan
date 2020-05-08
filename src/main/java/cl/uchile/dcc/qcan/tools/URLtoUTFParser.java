@@ -15,74 +15,73 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class URLtoUTFParser implements FileVisitor<Path> {
-	
-	Path startingFile;
-	Queue<String> queue = new LinkedBlockingQueue<String>();
-	Path destination;
 
-	static final Logger logger = LoggerFactory.getLogger(URLtoUTFParser.class);
-	
-	public URLtoUTFParser(Path p, Path f) throws IOException{
-		this.startingFile = p;	
-		this.destination = f;
-	}
-	
-	public void start() throws IOException{
-		Files.walkFileTree(this.startingFile, this);
-	}
-	
-	@Override
-	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    Path startingFile;
+    Queue<String> queue = new LinkedBlockingQueue<String>();
+    Path destination;
 
-	@Override
-	public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) throws IOException {
-		logger.debug(String.valueOf(file));
-		String s;
-		File out = new File(destination.toString()+"/utf8"+file.getFileName());
-		out.createNewFile();
-		BufferedReader br = new BufferedReader(new FileReader(file.toFile()));
-		BufferedWriter bw = new BufferedWriter(new FileWriter(out));
-		while ((s = br.readLine()) != null) {
-			String query = s.split("\t")[0];
-			query = URLDecoder.decode(query, "UTF-8").replaceAll("\n", " ");
-			bw.write(query);
-			bw.newLine();
-		}
-		br.close();
-		bw.close();
-		return FileVisitResult.CONTINUE;
-	}
+    static final Logger logger = LoggerFactory.getLogger(URLtoUTFParser.class);
 
-	@Override
-	public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-		return FileVisitResult.TERMINATE;
-	}
+    public URLtoUTFParser(Path p, Path f) throws IOException {
+        this.startingFile = p;
+        this.destination = f;
+    }
 
-	@Override
-	public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
-	
-	public static void main(String[] args) throws IOException{
-		CommandLine commandLine;
-		Option option_X = new Option("x", true, "Path to folder containing queries.");
-		Option option_Y = new Option("y", true, "Path to store new files.");
-	    Options options = new Options();
-	    CommandLineParser parser = new DefaultParser();
-	    options.addOption(option_X);
-	    options.addOption(option_Y);
-	    try{
-		    commandLine = parser.parse(options, args);
-			Path p = new File(commandLine.getOptionValue("x")).toPath();
-			Path f = new File(commandLine.getOptionValue("y")).toPath();
-			URLtoUTFParser mg = new URLtoUTFParser(p,f);
-			mg.start();
-	    }
-	    catch (ParseException e){
-	        logger.error("Parse error", e);
-	    }
-	}
+    public void start() throws IOException {
+        Files.walkFileTree(this.startingFile, this);
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) throws IOException {
+        logger.debug(String.valueOf(file));
+        String s;
+        File out = new File(destination.toString() + "/utf8" + file.getFileName());
+        out.createNewFile();
+        BufferedReader br = new BufferedReader(new FileReader(file.toFile()));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(out));
+        while ((s = br.readLine()) != null) {
+            String query = s.split("\t")[0];
+            query = URLDecoder.decode(query, "UTF-8").replaceAll("\n", " ");
+            bw.write(query);
+            bw.newLine();
+        }
+        br.close();
+        bw.close();
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        return FileVisitResult.TERMINATE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
+
+    public static void main(String[] args) throws IOException {
+        CommandLine commandLine;
+        Option option_X = new Option("x", true, "Path to folder containing queries.");
+        Option option_Y = new Option("y", true, "Path to store new files.");
+        Options options = new Options();
+        CommandLineParser parser = new DefaultParser();
+        options.addOption(option_X);
+        options.addOption(option_Y);
+        try {
+            commandLine = parser.parse(options, args);
+            Path p = new File(commandLine.getOptionValue("x")).toPath();
+            Path f = new File(commandLine.getOptionValue("y")).toPath();
+            URLtoUTFParser mg = new URLtoUTFParser(p, f);
+            mg.start();
+        } catch (ParseException e) {
+            logger.error("Parse error", e);
+        }
+    }
 
 }

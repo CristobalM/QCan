@@ -47,7 +47,7 @@ public class ExprWalker {
                 func.visit(this.visitor);
             }
 
-            for(int i = 1; i <= func.numArgs(); ++i) {
+            for (int i = 1; i <= func.numArgs(); ++i) {
                 Expr expr = func.getArg(i);
                 if (expr == null) {
                     NodeValue.nvNothing.visit(this);

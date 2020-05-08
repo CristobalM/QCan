@@ -17,235 +17,231 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A class that takes a query as an input, performs a canonicalisation and measures how long it takes.
- * @author Jaime
  *
+ * @author Jaime
  */
 public class SingleQuery {
-	
-	private long time = 0;
-	private long canonTime = 0;
-	private int nTriples = 0;
-	private RGraph graph;
-	private RGraph canonGraph;
-	private boolean enableLeaning = true;
-	private boolean containsUnion = false;
-	private boolean containsJoin = false;
-	private boolean containsOptional = false;
-	private boolean containsFilter = false;
-	private boolean containsSolutionMods = false;
-	private boolean containsNamedGraphs = false;
 
-	private String canonicalLabel;
-	
-	
-	public SingleQuery(String q) throws InterruptedException, HashCollisionException{
-		this(q,true,true);
-	}
-	
-	public SingleQuery(String q, boolean canon, boolean leaning) throws InterruptedException, HashCollisionException{
-		this(q,canon,leaning,false);
-	}
-	
-	public SingleQuery(String q, boolean canon, boolean leaning, boolean verbose) throws InterruptedException, HashCollisionException{
-		setLeaning(leaning);
-		long t = System.nanoTime();
-		parseQuery(q);
-		time = System.nanoTime() - t;
-		if (canon){
-			t = System.nanoTime();
-			canonicalise(verbose);
-			canonTime = System.nanoTime() - t;
-		}
-		else{
-			canonGraph = this.graph;
-			canonTime = time;
-		}
-	}
-	
-	public SingleQuery(Op op) throws InterruptedException, HashCollisionException {
-		String q = OpAsQuery.asQuery(op).toString();
-		parseQuery(q);
-		canonicalise();
-	}
-	
-	public static Op UCQTransformation(Op op){
-		Op op2 = Transformer.transform(new TransformPathFlatternStd(), op);
-		op2 = Transformer.transform(new TransformSimplify(), op2);
-		op2 = Transformer.transform(new UCQVisitor(), op2);
-		while (!op.equals(op2)){
-			op = op2;
-			op2 = Transformer.transform(new UCQVisitor(), op2);
-		}
-		op2 = Transformer.transform(new FilterTransform(), op2);
-		op2 = Transformer.transform(new TransformMergeBGPs(), op2);
-		op2 = Transformer.transform(new TransformExtendCombine(), op2);
-		op2 = Transformer.transform(new BGPSort(), op2);
-		return op2;
-	}
-	
-	public boolean checkBranchVars(Op op){
-		BGPSort bgps = new BGPSort();
-		@SuppressWarnings("unused")
-		Op op2 = Transformer.transform(bgps, op);
-		for (int i = 0; i < bgps.ucqVars.size(); i++){
-			for (int j = i + 1; j < bgps.ucqVars.size(); j++){
-				if (bgps.ucqVars.get(i).equals(bgps.ucqVars.get(j))){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public void parseQuery(String q) throws UnsupportedOperationException, QueryParseException{
-		Query query = QueryFactory.create(q);
-		Op op = Algebra.compile(query);
-		RGraphBuilder rgb = new RGraphBuilder(query);
-		graph = rgb.getResult();
-		if (!rgb.isDistinct){
-			if (rgb.totalVars.containsAll(rgb.projectionVars) && rgb.projectionVars.containsAll(rgb.totalVars)){
-				if (!checkBranchVars(op)){
-					graph.setDistinctNode(true);
-				}			
-				else{
-					graph.setDistinctNode(rgb.isDistinct);
-				}
-			}
-			else{
-				graph.setDistinctNode(rgb.isDistinct);
-			}
-		}
-		else{
-			graph.setDistinctNode(true);
-		}
-		nTriples = rgb.nTriples;
-		containsUnion = rgb.getContainsUnion();
-		containsJoin = rgb.getContainsJoin();
-		containsOptional = rgb.getContainsOptional();
-		containsFilter = rgb.getContainsFilter();
-		containsNamedGraphs = rgb.getContainsNamedGraphs();
-		containsSolutionMods = rgb.getContainsSolutionMods();
-	}
-	
-	public void canonicalise() throws InterruptedException, HashCollisionException{
-		this.graph.setLeaning(enableLeaning);
-		canonGraph = this.graph.getCanonicalForm();
-		canonicalLabel = this.graph.getGraphLabel();
-	}
-	
-	public void canonicalise(boolean verbose) throws InterruptedException, HashCollisionException{
-		this.graph.setLeaning(enableLeaning);
-		canonGraph = this.graph.getCanonicalForm();
-		canonicalLabel = this.graph.getGraphLabel();
-	}
-	
-	public boolean determineSemantics(){
-		
-		return true;
-	}
-	
-	public void setLeaning(boolean b){
-		this.enableLeaning = b;
-	}
-	
-	public long getGraphCreationTime(){
-		return this.time;
-	}
-	
-	public long getCanonicalisationTime(){
-		return this.canonTime;
-	}
-	
-	public int getInitialTriples(){
-		return this.nTriples;
-	}
-	
-	public int triplePatternsIn(){
-		return graph.getNumberOfTriples();
-	}
-	
-	public int triplePatternsOut(){
-		return canonGraph.getNumberOfTriples();
-	}
-	
-	public int graphSizeIn(){
-		return graph.getNumberOfNodes();
-	}
-	
-	public int graphSizeOut(){
-		return canonGraph.getNumberOfNodes();
-	}
-	
-	public int getVarsIn(){
-		return graph.getNumberOfVars();
-	}
-	
-	public int getVarsOut(){
-		return canonGraph.getNumberOfVars();
-	}
-	
-	public String getQuery(){
-		QueryBuilder qb = new QueryBuilder(this.canonGraph);
-		return qb.getQuery();
-	}
-	
-	public boolean isDistinct(){
-		return graph.isDistinct();
-	}
-	
-	public boolean hasUnion(){
-		return canonGraph.containsUnion();
-	}
-	
-	public boolean hasJoin(){
-		return canonGraph.containsJoin();
-	}
-	
-	public RGraph getOriginalGraph(){
-		return this.graph;
-	}
-	
-	public RGraph getCanonicalGraph(){
-		return this.canonGraph;
-	}
-	
-	public boolean getContainsUnion(){
-		return this.containsUnion;
-	}
-	
-	public boolean getContainsJoin(){
-		return this.containsJoin;
-	}
-	
-	public boolean getContainsOptional(){
-		return this.containsOptional;
-	}
-	
-	public boolean getContainsFilter(){
-		return this.containsFilter;
-	}
-	
-	public boolean getContainsSolutionMods(){
-		return this.containsSolutionMods;
-	}
-	
-	public boolean getContainsNamedGraphs(){
-		return this.containsNamedGraphs;
-	}
-	
-	public static void main(String[] args) throws InterruptedException, HashCollisionException{
-		Logger logger = LoggerFactory.getLogger(SingleQuery.class);
+    private long time = 0;
+    private long canonTime = 0;
+    private int nTriples = 0;
+    private RGraph graph;
+    private RGraph canonGraph;
+    private boolean enableLeaning = true;
+    private boolean containsUnion = false;
+    private boolean containsJoin = false;
+    private boolean containsOptional = false;
+    private boolean containsFilter = false;
+    private boolean containsSolutionMods = false;
+    private boolean containsNamedGraphs = false;
+
+    private String canonicalLabel;
 
 
-		String q = "prefix : <http://example.org/> SELECT DISTINCT ?x WHERE { ?x (:p|:q)+ ?y . ?x :p+ ?z . }";
-		q = "prefix : <http://example.org/> SELECT DISTINCT ?x WHERE { ?x :p1 ?n1 . ?n1 :a* ?n2 . ?n2 :a* ?n1 . ?y :p2 ?n2 . ?n2 :a*/:b* ?n3 . ?n3 :a*|:c* ?n2 . ?z :p3 ?n3 .  }";
-		@SuppressWarnings("unused")
-		SingleQuery sq = new SingleQuery(q,true,true,true);
-		sq.getCanonicalGraph().print();
-		logger.info(sq.getQuery());
-	}
+    public SingleQuery(String q) throws InterruptedException, HashCollisionException {
+        this(q, true, true);
+    }
 
-	public String getCanonicalLabel() {
-		return canonicalLabel;
-	}
+    public SingleQuery(String q, boolean canon, boolean leaning) throws InterruptedException, HashCollisionException {
+        this(q, canon, leaning, false);
+    }
+
+    public SingleQuery(String q, boolean canon, boolean leaning, boolean verbose) throws InterruptedException, HashCollisionException {
+        setLeaning(leaning);
+        long t = System.nanoTime();
+        parseQuery(q);
+        time = System.nanoTime() - t;
+        if (canon) {
+            t = System.nanoTime();
+            canonicalise(verbose);
+            canonTime = System.nanoTime() - t;
+        } else {
+            canonGraph = this.graph;
+            canonTime = time;
+        }
+    }
+
+    public SingleQuery(Op op) throws InterruptedException, HashCollisionException {
+        String q = OpAsQuery.asQuery(op).toString();
+        parseQuery(q);
+        canonicalise();
+    }
+
+    public static Op UCQTransformation(Op op) {
+        Op op2 = Transformer.transform(new TransformPathFlatternStd(), op);
+        op2 = Transformer.transform(new TransformSimplify(), op2);
+        op2 = Transformer.transform(new UCQVisitor(), op2);
+        while (!op.equals(op2)) {
+            op = op2;
+            op2 = Transformer.transform(new UCQVisitor(), op2);
+        }
+        op2 = Transformer.transform(new FilterTransform(), op2);
+        op2 = Transformer.transform(new TransformMergeBGPs(), op2);
+        op2 = Transformer.transform(new TransformExtendCombine(), op2);
+        op2 = Transformer.transform(new BGPSort(), op2);
+        return op2;
+    }
+
+    public boolean checkBranchVars(Op op) {
+        BGPSort bgps = new BGPSort();
+        @SuppressWarnings("unused")
+        Op op2 = Transformer.transform(bgps, op);
+        for (int i = 0; i < bgps.ucqVars.size(); i++) {
+            for (int j = i + 1; j < bgps.ucqVars.size(); j++) {
+                if (bgps.ucqVars.get(i).equals(bgps.ucqVars.get(j))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void parseQuery(String q) throws UnsupportedOperationException, QueryParseException {
+        Query query = QueryFactory.create(q);
+        Op op = Algebra.compile(query);
+        RGraphBuilder rgb = new RGraphBuilder(query);
+        graph = rgb.getResult();
+        if (!rgb.isDistinct) {
+            if (rgb.totalVars.containsAll(rgb.projectionVars) && rgb.projectionVars.containsAll(rgb.totalVars)) {
+                if (!checkBranchVars(op)) {
+                    graph.setDistinctNode(true);
+                } else {
+                    graph.setDistinctNode(rgb.isDistinct);
+                }
+            } else {
+                graph.setDistinctNode(rgb.isDistinct);
+            }
+        } else {
+            graph.setDistinctNode(true);
+        }
+        nTriples = rgb.nTriples;
+        containsUnion = rgb.getContainsUnion();
+        containsJoin = rgb.getContainsJoin();
+        containsOptional = rgb.getContainsOptional();
+        containsFilter = rgb.getContainsFilter();
+        containsNamedGraphs = rgb.getContainsNamedGraphs();
+        containsSolutionMods = rgb.getContainsSolutionMods();
+    }
+
+    public void canonicalise() throws InterruptedException, HashCollisionException {
+        this.graph.setLeaning(enableLeaning);
+        canonGraph = this.graph.getCanonicalForm();
+        canonicalLabel = this.graph.getGraphLabel();
+    }
+
+    public void canonicalise(boolean verbose) throws InterruptedException, HashCollisionException {
+        this.graph.setLeaning(enableLeaning);
+        canonGraph = this.graph.getCanonicalForm();
+        canonicalLabel = this.graph.getGraphLabel();
+    }
+
+    public boolean determineSemantics() {
+
+        return true;
+    }
+
+    public void setLeaning(boolean b) {
+        this.enableLeaning = b;
+    }
+
+    public long getGraphCreationTime() {
+        return this.time;
+    }
+
+    public long getCanonicalisationTime() {
+        return this.canonTime;
+    }
+
+    public int getInitialTriples() {
+        return this.nTriples;
+    }
+
+    public int triplePatternsIn() {
+        return graph.getNumberOfTriples();
+    }
+
+    public int triplePatternsOut() {
+        return canonGraph.getNumberOfTriples();
+    }
+
+    public int graphSizeIn() {
+        return graph.getNumberOfNodes();
+    }
+
+    public int graphSizeOut() {
+        return canonGraph.getNumberOfNodes();
+    }
+
+    public int getVarsIn() {
+        return graph.getNumberOfVars();
+    }
+
+    public int getVarsOut() {
+        return canonGraph.getNumberOfVars();
+    }
+
+    public String getQuery() {
+        QueryBuilder qb = new QueryBuilder(this.canonGraph);
+        return qb.getQuery();
+    }
+
+    public boolean isDistinct() {
+        return graph.isDistinct();
+    }
+
+    public boolean hasUnion() {
+        return canonGraph.containsUnion();
+    }
+
+    public boolean hasJoin() {
+        return canonGraph.containsJoin();
+    }
+
+    public RGraph getOriginalGraph() {
+        return this.graph;
+    }
+
+    public RGraph getCanonicalGraph() {
+        return this.canonGraph;
+    }
+
+    public boolean getContainsUnion() {
+        return this.containsUnion;
+    }
+
+    public boolean getContainsJoin() {
+        return this.containsJoin;
+    }
+
+    public boolean getContainsOptional() {
+        return this.containsOptional;
+    }
+
+    public boolean getContainsFilter() {
+        return this.containsFilter;
+    }
+
+    public boolean getContainsSolutionMods() {
+        return this.containsSolutionMods;
+    }
+
+    public boolean getContainsNamedGraphs() {
+        return this.containsNamedGraphs;
+    }
+
+    public static void main(String[] args) throws InterruptedException, HashCollisionException {
+        Logger logger = LoggerFactory.getLogger(SingleQuery.class);
+
+
+        String q = "prefix : <http://example.org/> SELECT DISTINCT ?x WHERE { ?x (:p|:q)+ ?y . ?x :p+ ?z . }";
+        q = "prefix : <http://example.org/> SELECT DISTINCT ?x WHERE { ?x :p1 ?n1 . ?n1 :a* ?n2 . ?n2 :a* ?n1 . ?y :p2 ?n2 . ?n2 :a*/:b* ?n3 . ?n3 :a*|:c* ?n2 . ?z :p3 ?n3 .  }";
+        @SuppressWarnings("unused")
+        SingleQuery sq = new SingleQuery(q, true, true, true);
+        sq.getCanonicalGraph().print();
+        logger.info(sq.getQuery());
+    }
+
+    public String getCanonicalLabel() {
+        return canonicalLabel;
+    }
 }

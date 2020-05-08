@@ -21,126 +21,125 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class MultipleGenerator implements FileVisitor<Path> {
-	
-	Path startingFile;
-	public File file;
-	public FileWriter fw;
-	public BufferedWriter bw;
-	private long timeout = 60*10*1000;
-	Queue<String> queue = new LinkedBlockingQueue<String>();
 
-	private static final Logger logger = LoggerFactory.getLogger(MultipleGenerator.class);
-	
-	public MultipleGenerator(Path p) throws IOException{
-		this.startingFile = p;	
-		this.file = new File("resultFiles/leaning/result"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())+".log");
-		if (!this.file.exists()){
-			this.file.createNewFile();
-		}
-		fw = new FileWriter(this.file, true);
-		bw = new BufferedWriter(fw);
-	}
-	
-	public void start() throws IOException{
-		Files.walkFileTree(this.startingFile, this);
-	}
-	
-	public void setTimeout(long t){
-		this.timeout = t;
-	}
+    Path startingFile;
+    public File file;
+    public FileWriter fw;
+    public BufferedWriter bw;
+    private long timeout = 60 * 10 * 1000;
+    Queue<String> queue = new LinkedBlockingQueue<String>();
 
-	@Override
-	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    private static final Logger logger = LoggerFactory.getLogger(MultipleGenerator.class);
 
-	@Override
-	public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) throws IOException {
-		logger.debug(String.valueOf(file));
-		Thread slave = new Thread(new Runnable(){
-			@Override
-			public void run() {
-				int initialNodes, finalNodes, initialVars, finalVars, initialTriples, finalTriples;
-				Generator g;
-				try {
-					g = new Generator(file.toFile());
-					g.generateTriples();
-					RGraph e = g.generateGraph();
-					String output = "";
-					initialNodes = e.getNumberOfNodes();
-					initialVars = e.getNumberOfVars();
-					initialTriples = e.getNumberOfTriples();
-					long t = System.nanoTime();
-					RGraph a = e.getCanonicalForm();
-					t = System.nanoTime() - t;
-					finalNodes = a.getNumberOfNodes();
-					finalVars = a.getNumberOfVars();
-					finalTriples = a.getNumberOfTriples();
-					output += file.getFileName() + "\t";
-					output += t + "\t";
-					output += initialNodes + "\t";
-					output += finalNodes + "\t";
-					output += initialVars + "\t";
-					output += finalVars + "\t";
-					output += initialTriples +"\t";
-					output += finalTriples;
-					queue.add(output);
-				} catch (InterruptedException | HashCollisionException | IOException e) {
-					logger.error("failed visit file run", e);
-				} catch (StackOverflowError e){
-					logger.error("Stack overflow error", e);
-				}
-			}
-			
-		});
-		slave.start();
-		try {
-			slave.join(timeout);
-		} catch (InterruptedException e) {
-			logger.error("Interrupted visit file", e);
-		}
-		return FileVisitResult.CONTINUE;
-	}
+    public MultipleGenerator(Path p) throws IOException {
+        this.startingFile = p;
+        this.file = new File("resultFiles/leaning/result" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()) + ".log");
+        if (!this.file.exists()) {
+            this.file.createNewFile();
+        }
+        fw = new FileWriter(this.file, true);
+        bw = new BufferedWriter(fw);
+    }
 
-	@Override
-	public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-		return FileVisitResult.TERMINATE;
-	}
+    public void start() throws IOException {
+        Files.walkFileTree(this.startingFile, this);
+    }
 
-	@Override
-	public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
-	
-	public void done() throws IOException{
-		for (String s : queue){
-			bw.append(s);
-			bw.newLine();
-		}
-		bw.close();
-	}
-	
-	public static void main(String[] args) throws IOException{
-		CommandLine commandLine;
-		Option option_X = new Option("x", true, "Path to folder containing queries.");
-		Option option_T = new Option("t", true, "Timeout in milliseconds. Default is 10 minutes.");
-	    Options options = new Options();
-	    CommandLineParser parser = new DefaultParser();
-	    options.addOption(option_X);
-	    options.addOption(option_T);
-	    try{
-		    commandLine = parser.parse(options, args);
-			Path p = new File(commandLine.getOptionValue("x")).toPath();
-			MultipleGenerator mg = new MultipleGenerator(p);
-			if (commandLine.hasOption("t")){
-				mg.setTimeout(new Long(commandLine.getOptionValue("t")));
-			}
-			mg.start();
-			mg.done();
-	    }
-	    catch (ParseException e){
-	        logger.error("Parse error", e);
-	    }
-	}
+    public void setTimeout(long t) {
+        this.timeout = t;
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFile(final Path file, BasicFileAttributes attrs) throws IOException {
+        logger.debug(String.valueOf(file));
+        Thread slave = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int initialNodes, finalNodes, initialVars, finalVars, initialTriples, finalTriples;
+                Generator g;
+                try {
+                    g = new Generator(file.toFile());
+                    g.generateTriples();
+                    RGraph e = g.generateGraph();
+                    String output = "";
+                    initialNodes = e.getNumberOfNodes();
+                    initialVars = e.getNumberOfVars();
+                    initialTriples = e.getNumberOfTriples();
+                    long t = System.nanoTime();
+                    RGraph a = e.getCanonicalForm();
+                    t = System.nanoTime() - t;
+                    finalNodes = a.getNumberOfNodes();
+                    finalVars = a.getNumberOfVars();
+                    finalTriples = a.getNumberOfTriples();
+                    output += file.getFileName() + "\t";
+                    output += t + "\t";
+                    output += initialNodes + "\t";
+                    output += finalNodes + "\t";
+                    output += initialVars + "\t";
+                    output += finalVars + "\t";
+                    output += initialTriples + "\t";
+                    output += finalTriples;
+                    queue.add(output);
+                } catch (InterruptedException | HashCollisionException | IOException e) {
+                    logger.error("failed visit file run", e);
+                } catch (StackOverflowError e) {
+                    logger.error("Stack overflow error", e);
+                }
+            }
+
+        });
+        slave.start();
+        try {
+            slave.join(timeout);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted visit file", e);
+        }
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        return FileVisitResult.TERMINATE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
+
+    public void done() throws IOException {
+        for (String s : queue) {
+            bw.append(s);
+            bw.newLine();
+        }
+        bw.close();
+    }
+
+    public static void main(String[] args) throws IOException {
+        CommandLine commandLine;
+        Option option_X = new Option("x", true, "Path to folder containing queries.");
+        Option option_T = new Option("t", true, "Timeout in milliseconds. Default is 10 minutes.");
+        Options options = new Options();
+        CommandLineParser parser = new DefaultParser();
+        options.addOption(option_X);
+        options.addOption(option_T);
+        try {
+            commandLine = parser.parse(options, args);
+            Path p = new File(commandLine.getOptionValue("x")).toPath();
+            MultipleGenerator mg = new MultipleGenerator(p);
+            if (commandLine.hasOption("t")) {
+                mg.setTimeout(new Long(commandLine.getOptionValue("t")));
+            }
+            mg.start();
+            mg.done();
+        } catch (ParseException e) {
+            logger.error("Parse error", e);
+        }
+    }
 
 }

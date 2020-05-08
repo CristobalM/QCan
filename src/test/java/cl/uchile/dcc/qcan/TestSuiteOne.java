@@ -13,11 +13,11 @@ import static org.junit.Assert.assertTrue;
 
 public class TestSuiteOne {
 
-    File fromResource(String resourcePath){
-		return new File(Objects.requireNonNull(getClass().getClassLoader().getResource(resourcePath)).getFile());
-	}
+    File fromResource(String resourcePath) {
+        return new File(Objects.requireNonNull(getClass().getClassLoader().getResource(resourcePath)).getFile());
+    }
 
-	@Test
+    @Test
     public void labelTest() {
         try {
             QueryParserTest qp = new QueryParserTest(fromResource("testFiles/test01.txt"));
