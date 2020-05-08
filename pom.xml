@@ -21,7 +21,7 @@
             </plugin>
         </plugins>
     </build>
-<!--
+
     <repositories>
         <repository>
             <id>repo.maven.apache.org</id>
@@ -32,12 +32,12 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
--->
+
     <dependencies>
         <dependency>
-            <groupId>cl.uchile.dcc</groupId>
+            <groupId>com.github.aidhog</groupId>
             <artifactId>blabel</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>b24ad3b</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jena</groupId>
