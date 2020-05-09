@@ -8,10 +8,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.core.Var;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 public class Generator {
@@ -80,8 +77,13 @@ public class Generator {
         System.out.println(output);
     }
 
+    static File fromResource(String resourcePath) {
+        ClassLoader classLoader = Generator.class.getClassLoader();
+        return new File(Objects.requireNonNull(classLoader.getResource(resourcePath)).getFile());
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException, HashCollisionException {
-        Generator g = new Generator(new File("eval/lattice/lattice-4"));
+        Generator g = new Generator(fromResource("eval/lattice/lattice-4"));
         g.printStats();
     }
 
