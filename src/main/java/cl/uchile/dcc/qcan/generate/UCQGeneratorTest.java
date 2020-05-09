@@ -10,8 +10,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Objects;
 
 public class UCQGeneratorTest {
+    File fromResource(String resourcePath) {
+        return new File(Objects.requireNonNull(getClass().getClassLoader().getResource(resourcePath)).getFile());
+    }
 
     public final String[] testFiles = {
             "eval/k/k-4",
@@ -42,7 +46,7 @@ public class UCQGeneratorTest {
         int c = a + b;
         conjunctions = a;
         unions = b;
-        generator = new UCQGenerator(new File("eval/k/k-" + c));
+        generator = new UCQGenerator(fromResource("eval/k/k-" + c));
         generator.generateTriples();
         generator.selectTriples(a, b);
 
