@@ -22,19 +22,24 @@ public class TestSuiteOne {
         try {
             QueryParserTest qp = new QueryParserTest(fromResource("testFiles/test01.txt"));
             assertTrue(qp.equalQueries(0, 1));
+            System.out.println("done first");
             qp = new QueryParserTest(fromResource("testFiles/test02.txt"));
             assertTrue(qp.equalQueries(0, 1));
             assertTrue(qp.equalQueries(1, 2));
+            System.out.println("done second");
             qp = new QueryParserTest(fromResource("testFiles/test03.txt"));
             assertTrue(qp.equalQueries(0, 1));
+            System.out.println("done third");
             qp = new QueryParserTest(fromResource("testFiles/test04.txt"));
             assertTrue(qp.equalQueries(0, 1));
+            System.out.println("done fourth");
             qp = new QueryParserTest(fromResource("testFiles/test08.txt"));
             assertTrue(qp.equalQueries(0, 1));
             assertTrue(qp.equalQueries(1, 2));
             assertTrue(qp.equalQueries(3, 4));
             assertTrue(qp.equalQueries(5, 6));
             assertTrue(qp.equalQueries(6, 7));
+            System.out.println("done fifth");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
