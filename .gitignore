@@ -1,6 +1,8 @@
-testFiles/*.nt
 /bin/
 /target/
 .idea/
 logging.log
 qcan.iml
+.classpath
+.project
+.settings
