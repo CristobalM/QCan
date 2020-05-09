@@ -120,10 +120,6 @@ public class BindVisitor implements ExprVisitor {
         }
     }
 
-    @Override
-    public void visit(ExprNone exprNone) {
-
-    }
 
     public RGraph getGraph() {
         Node exprNode = nodeStack.peek();

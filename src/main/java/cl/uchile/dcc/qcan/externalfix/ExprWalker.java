@@ -78,9 +78,5 @@ public class ExprWalker {
             eAgg.visit(this.visitor);
         }
 
-        @Override
-        public void visit(ExprNone exprNone) {
-
-        }
     }
 }
