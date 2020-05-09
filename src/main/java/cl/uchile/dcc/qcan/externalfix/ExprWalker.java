@@ -77,5 +77,10 @@ public class ExprWalker {
         public void visit(ExprAggregator eAgg) {
             eAgg.visit(this.visitor);
         }
+
+        @Override
+        public void visit(ExprNone exprNone) {
+
+        }
     }
 }

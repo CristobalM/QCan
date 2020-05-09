@@ -24,39 +24,28 @@ public class BGPSort extends TransformCopy {
     }
 
     public Op transform(OpUnion union, Op left, Op right) {
-        if (left instanceof OpBGP) {
-            List<Triple> triple = ((OpBGP) left).getPattern().getList();
-            HashSet<String> cqVars = new HashSet<String>();
-            for (Triple t : triple) {
-                if (t.getSubject().isVariable()) {
-                    cqVars.add(t.getSubject().getName());
-                }
-                if (t.getPredicate().isVariable()) {
-                    cqVars.add(t.getPredicate().getName());
-                }
-                if (t.getObject().isVariable()) {
-                    cqVars.add(t.getObject().getName());
-                }
-            }
-            ucqVars.add(cqVars);
-        }
-        if (right instanceof OpBGP) {
-            List<Triple> triple = ((OpBGP) right).getPattern().getList();
-            HashSet<String> cqVars = new HashSet<String>();
-            for (Triple t : triple) {
-                if (t.getSubject().isVariable()) {
-                    cqVars.add(t.getSubject().getName());
-                }
-                if (t.getPredicate().isVariable()) {
-                    cqVars.add(t.getPredicate().getName());
-                }
-                if (t.getObject().isVariable()) {
-                    cqVars.add(t.getObject().getName());
-                }
-            }
-            ucqVars.add(cqVars);
-        }
+        instanceCheckTransform(left);
+        instanceCheckTransform(right);
         return union;
+    }
+
+    private void instanceCheckTransform(Op whichOp) {
+        if (whichOp instanceof OpBGP) {
+            List<Triple> triple = ((OpBGP) whichOp).getPattern().getList();
+            HashSet<String> cqVars = new HashSet<String>();
+            for (Triple t : triple) {
+                if (t.getSubject().isVariable()) {
+                    cqVars.add(t.getSubject().getName());
+                }
+                if (t.getPredicate().isVariable()) {
+                    cqVars.add(t.getPredicate().getName());
+                }
+                if (t.getObject().isVariable()) {
+                    cqVars.add(t.getObject().getName());
+                }
+            }
+            ucqVars.add(cqVars);
+        }
     }
 
     public class BGPComparator implements Comparator<OpBGP> {

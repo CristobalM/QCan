@@ -134,6 +134,11 @@ public class FilterVisitor implements ExprVisitor {
         }
     }
 
+    @Override
+    public void visit(ExprNone exprNone) {
+
+    }
+
     public RGraph getGraph() {
         filterGraph.root = nodeStack.peek();
         filterGraph.filterNormalisation();
